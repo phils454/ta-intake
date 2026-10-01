@@ -9,7 +9,7 @@ import json
 # --- Configuration & Helpers ---
 SENDER_EMAIL = st.secrets["sender_email"]
 SENDER_PASSWORD = st.secrets["sender_password"]
-RECEIVER_EMAIL = "shekerlianlaw@gmail.com"
+RECEIVER_EMAIL = "anu@barthattorneys.com"
 
 def send_email_with_docx(attachments, client_name):
     msg = EmailMessage()
