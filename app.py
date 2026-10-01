@@ -11,15 +11,16 @@ SENDER_EMAIL = st.secrets["sender_email"]
 SENDER_PASSWORD = st.secrets["sender_password"]
 RECEIVER_EMAIL = "shekerlianlaw@gmail.com"
 
-def send_email_with_docx(docx_path, filename):
+def send_email_with_docx(attachments, client_name):
     msg = EmailMessage()
-    msg['Subject'] = f"New TA Intake: {filename}"
+    msg['Subject'] = f"New TA Intake & Working Documents: {client_name}"
     msg['From'] = SENDER_EMAIL
     msg['To'] = RECEIVER_EMAIL
-    msg.set_content("A new Trust Administration questionnaire has been completed. The generated Word document is attached.")
+    msg.set_content("A new Trust Administration questionnaire has been completed. The Questionnaire and all internal working documents are attached.")
 
-    with open(docx_path, 'rb') as f:
-        msg.add_attachment(f.read(), maintype='application', subtype='vnd.openxmlformats-officedocument.wordprocessingml.document', filename=filename)
+    for filepath, filename in attachments:
+        with open(filepath, 'rb') as f:
+            msg.add_attachment(f.read(), maintype='application', subtype='vnd.openxmlformats-officedocument.wordprocessingml.document', filename=filename)
 
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
@@ -51,11 +52,11 @@ with st.sidebar:
 st.title("BarthCalderon Trust Administration Questionnaire")
 st.markdown("---")
 
-warning_msg = "⚠️ **CRITICAL WARNING:** Your privacy is our priority, so your answers are NOT stored on a cloud database. **If you close this browser window or lose internet connection, all information will be lost.** To avoid this, go to Tab 5 at any time and click **'Save Draft to Computer'**."
+warning_msg = "⚠️ **CRITICAL WARNING:** Your privacy is our priority, so your answers are NOT stored on a cloud database. **If you close this browser window or lose internet connection, all information will be lost.** To avoid this, go to Tab 6 at any time and click **'Save Draft to Computer'**."
 
-t_contact, t_relatives, t_taxes_benes, t_assets, t_debts = st.tabs([
+t_contact, t_relatives, t_taxes_benes, t_assets, t_debts, t_admin = st.tabs([
     "1. Contact & Decedent", "2. Relatives & Marriages", "3. Taxes & Beneficiaries", 
-    "4. Assets & Real Estate", "5. Vehicles, Debts & Misc"
+    "4. Assets & Real Estate", "5. Vehicles, Debts & Misc", "6. Admin & Internal"
 ])
 
 with t_contact:
@@ -273,11 +274,25 @@ with t_debts:
         val = it2.text_input(f"Item #{i} Value", key=f"item{i}_val")
         items.append({'desc': desc, 'val': val})
 
+with t_admin:
+    st.info("These fields are required to automatically generate the internal firm documents (Notices, Cert of Trust, Affidavits, etc.).")
+    st.subheader("Legal/Trust Specifics")
+    ta1, ta2 = st.columns(2)
+    trust_name = ta1.text_input("Name of Trust", key="trust_name")
+    trust_date = ta2.text_input("Date of Trust", key="trust_date")
+    date_of_will = ta1.text_input("Date of Will", key="date_of_will")
+    
+    st.subheader("Firm Personnel Information")
+    ta3, ta4 = st.columns(2)
+    law_firm_name = ta3.text_input("Law Firm Name", value="BarthCalderon LLP", key="law_firm_name")
+    firm_address = ta4.text_input("Firm Address", value="333 City Blvd W., Suite 2050, Orange, CA 92868", key="firm_address")
+    attorney_name = ta3.text_input("Attorney Name", key="attorney_name")
+    paralegal_name = ta4.text_input("Paralegal Name", key="paralegal_name")
+
     # --- SAVE / SUBMIT BUTTONS ---
     st.markdown("---")
     st.subheader("Finish or Save Progress")
     
-    # Generate JSON payload for downloading, excluding Streamlit internal objects
     draft_dict = {
         k: v for k, v in st.session_state.items() 
         if isinstance(v, (str, int, float, bool, list)) 
@@ -295,31 +310,31 @@ with t_debts:
             mime="application/json"
         )
     with col2:
-        submit = st.button("Submit Final Questionnaire ➔")
+        submit = st.button("Submit Final Questionnaire & Generate Docs ➔")
 
     if submit:
         ctx = {}
         
-        # Contact
+        # 1. Contact Info Mapping
         ctx['t_fname'] = t_fname; ctx['t_mname'] = t_mname; ctx['t_lname'] = t_lname
         ctx['t_addr'] = t_addr; ctx['t_city'] = t_city; ctx['t_state'] = t_state; ctx['t_zip'] = t_zip
         ctx['t_hphone'] = t_hphone; ctx['t_cphone'] = t_cphone; ctx['t_wphone'] = t_wphone
         ctx['t_ssn'] = t_ssn; ctx['t_email'] = t_email; ctx['t_dob'] = t_dob
         ctx['cb_t_y'] = cb(is_trustee == "Yes"); ctx['cb_t_n'] = cb(is_trustee == "No"); ctx['t_other_name'] = t_other_name
         
-        # Decedent & Spouse
+        # 2. Decedent & Spouse Mapping
         ctx['d_fname'] = d_fname; ctx['d_mname'] = d_mname; ctx['d_lname'] = d_lname
         ctx['d_addr'] = d_addr; ctx['d_city'] = d_city; ctx['d_state'] = d_state; ctx['d_zip'] = d_zip
         ctx['d_dob'] = d_dob; ctx['d_dod'] = d_dod; ctx['d_county'] = d_county; ctx['d_ssn'] = d_ssn
         ctx['s_fname'] = s_fname; ctx['s_mname'] = s_mname; ctx['s_lname'] = s_lname
         ctx['s_dob'] = s_dob; ctx['s_dod'] = s_dod
         
-        # Trust/Will
+        # 3. Trust/Will Mapping
         ctx['cb_tw_y'] = cb(has_tw == "Yes"); ctx['cb_tw_n'] = cb(has_tw == "No")
         ctx['tw_fname'] = tw_fname; ctx['tw_mname'] = tw_mname; ctx['tw_lname'] = tw_lname
         ctx['tw_addr'] = tw_addr; ctx['tw_city'] = tw_city; ctx['tw_state'] = tw_state; ctx['tw_zip'] = tw_zip
 
-        # Relatives
+        # 4. Relatives Mapping
         ctx['mom_name'] = mom_name; ctx['mom_dob'] = mom_dob; ctx['mom_addr'] = mom_addr
         ctx['dad_name'] = dad_name; ctx['dad_dob'] = dad_dob; ctx['dad_addr'] = dad_addr
         for i, s in enumerate(sibs, 1):
@@ -330,15 +345,26 @@ with t_debts:
             ctx[f'ex{i}_name'] = ex['name']; ctx[f'ex{i}_addr'] = ex['addr']; ctx[f'ex{i}_dob'] = ex['dob']
             ctx[f'ex{i}_dom'] = ex['dom']; ctx[f'ex{i}_div'] = ex['div']
 
-        # Taxes & Benes
+        # 5. Taxes & Benes Mapping
         ctx['cb_tax_inc_y'] = cb(tax_inc == "Yes"); ctx['cb_tax_inc_n'] = cb(tax_inc == "No")
         ctx['cb_tax_srv_y'] = cb(tax_srv == "Yes"); ctx['cb_tax_srv_n'] = cb(tax_srv == "No")
+        
+        beneficiaries_list = []
         for i, b in enumerate(benes, 1):
             ctx[f'ben{i}_name'] = b['name']; ctx[f'ben{i}_addr'] = b['addr']; ctx[f'ben{i}_phone'] = b['phone']
             ctx[f'ben{i}_rel'] = b['rel']; ctx[f'ben{i}_ssn'] = b['ssn']; ctx[f'ben{i}_dob'] = b['dob']
+            
+            # Format list of dictionaries specifically for the 16061.7 Loop
+            if b['name'].strip():
+                beneficiaries_list.append({
+                    'name': b['name'],
+                    'first_name': b['name'].split()[0] if b['name'] else "",
+                    'address': b['addr']
+                })
+        ctx['beneficiaries'] = beneficiaries_list
         ctx['cb_add_ben_y'] = cb(add_benes == "Yes"); ctx['cb_add_ben_n'] = cb(add_benes == "No")
 
-        # Assets
+        # 6. Assets Mapping
         for i, ins in enumerate(insurances, 1):
             ctx[f'ins{i}_inst'] = ins['inst']; ctx[f'ins{i}_amt'] = ins['amt']
         for i, inv in enumerate(investments, 1):
@@ -348,7 +374,7 @@ with t_debts:
         for i, r in enumerate(real_estate, 1):
             ctx[f're{i}_addr'] = r['addr']; ctx[f're{i}_val'] = r['val']; ctx[f're{i}_cnty'] = r['cnty']; ctx[f're{i}_mort'] = r['mort']
             
-        # Vehicles & Debts
+        # 7. Vehicles & Debts Mapping
         for i, v in enumerate(vehicles, 1):
             ctx[f'veh{i}_ymm'] = v['ymm']; ctx[f'veh{i}_loc'] = v['loc']; ctx[f'veh{i}_val'] = v['val']; ctx[f'veh{i}_owed'] = v['owed']
         for i, db in enumerate(debts, 1):
@@ -356,22 +382,55 @@ with t_debts:
         for i, it in enumerate(items, 1):
             ctx[f'item{i}_desc'] = it['desc']; ctx[f'item{i}_val'] = it['val']
 
+        # 8. INTERNAL FIRM VARIABLES (For automated Work Product Docs)
+        ctx['today_date'] = datetime.now().strftime("%B %d, %Y")
+        ctx['decedent_name'] = f"{d_fname} {d_mname} {d_lname}".replace("  ", " ").strip()
+        ctx['date_of_death'] = d_dod
+        ctx['ssn'] = d_ssn
+        ctx['trust_name'] = trust_name
+        ctx['trust_date'] = trust_date
+        ctx['date_of_will'] = date_of_will
+        ctx['law_firm_name'] = law_firm_name
+        ctx['firm_address'] = firm_address
+        ctx['attorney_name'] = attorney_name
+        ctx['paralegal_name'] = paralegal_name
+        
+        ctx['trustee_name'] = f"{t_fname} {t_lname}".strip() if is_trustee == "Yes" else t_other_name
+        ctx['trustee_address'] = f"{t_addr}, {t_city}, {t_state} {t_zip}"
+        ctx['trustee_phone'] = t_cphone if t_cphone else t_hphone
+
         # Output Generation
-        input_template = "TA Q (with Fields) - Rev. 4-14-26.docx"
+        templates = [
+            "TA Q (with Fields) - Rev. 4-14-26.docx",
+            "1_FTB_Notice.docx",
+            "2_DHCS_Notice.docx",
+            "3_Will_Lodging.docx",
+            "4_Cert_of_Trust.docx",
+            "5_Trust_Memo.docx",
+            "6_16061_7_Notice.docx"
+        ]
+        
         safe_name = t_lname.replace(" ", "_") if t_lname else "Client"
         timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-        output_filename = f"{safe_name}_TA_Intake_{timestamp}.docx"
-        temp_path = f"/tmp/{output_filename}"
-
+        attachments = []
+        
         try:
-            doc = DocxTemplate(input_template)
-            doc.render(context=ctx)
-            doc.save(temp_path)
+            for template in templates:
+                doc = DocxTemplate(template)
+                doc.render(context=ctx)
+                
+                output_filename = f"{safe_name}_{template.replace('.docx', '')}_{timestamp}.docx"
+                temp_path = f"/tmp/{output_filename}"
+                doc.save(temp_path)
+                
+                attachments.append((temp_path, output_filename))
             
-            send_email_with_docx(temp_path, output_filename)
-            os.remove(temp_path)
+            send_email_with_docx(attachments, safe_name)
             
-            st.success("Success! The Trust Administration questionnaire has been securely submitted.")
+            for temp_path, _ in attachments:
+                os.remove(temp_path)
+            
+            st.success("Success! The Trust Administration intake package and working documents have been generated and emailed securely.")
             
         except Exception as e:
-            st.error(f"Error compiling document: {e}. Ensure '{input_template}' is in the repository and formatted with the correct variable tags.")
+            st.error(f"Error compiling documents: {e}. Ensure all 7 template files are uploaded to your GitHub repository.")
