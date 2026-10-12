@@ -8,9 +8,9 @@ import smtplib
 from email.message import EmailMessage
 
 # --- HIDDEN FIRM CREDENTIALS ---
-vanw lgrb uojp nbrm 
+# Replace the text below with your 16-character Gmail App Password. 
 # Because it is in the code, it will never show up on the web form.
-GMAIL_APP_PASSWORD = "PUT_YOUR_16_CHAR_PASSWORD_HERE"
+GMAIL_APP_PASSWORD = "vanw lgrb uojp nbrm"
 
 # Define the templates folder location
 TEMPLATES_DIR = "templates"
