@@ -213,14 +213,7 @@ if submit_btn:
                     smtp.send_message(msg)
                 
                 st.success("✅ Documents generated and successfully emailed to our office")
-                
-                # Download Button for the final package
-                st.download_button(
-                    label="⬇️ Download Generated Documents (ZIP)",
-                    data=zip_buffer.getvalue(),
-                    file_name=f"{decedent_val.replace(' ', '_')}_TA_Documents.zip",
-                    mime="application/zip"
-                )
+
                 
             except smtplib.SMTPAuthenticationError:
                 st.error("❌ Email Failed: Authentication Error. Please ensure you are using a valid 16-character Google App Password.")
