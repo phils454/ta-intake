@@ -7,6 +7,11 @@ import zipfile
 import smtplib
 from email.message import EmailMessage
 
+# --- HIDDEN FIRM CREDENTIALS ---
+vanw lgrb uojp nbrm 
+# Because it is in the code, it will never show up on the web form.
+GMAIL_APP_PASSWORD = "PUT_YOUR_16_CHAR_PASSWORD_HERE"
+
 # Define the templates folder location
 TEMPLATES_DIR = "templates"
 if not os.path.exists(TEMPLATES_DIR):
@@ -62,29 +67,37 @@ with st.form("ta_automation_form"):
 
     # --- TAB 3: BENEFICIARIES ---
     with tab3:
-        st.subheader("Beneficiaries (For 16061.7 Notices)")
-        st.markdown("Enter the beneficiaries below. The template can loop through these to create a notice for each.")
+        st.subheader("Beneficiaries (For 16061.7 Notices & TA Questionnaire)")
+        st.markdown("Enter the beneficiaries below. The template can loop through these to create a notice for each, and list them all in the Questionnaire.")
         
         # Interactive table for dynamic beneficiary entry
         default_ben_df = pd.DataFrame([
-            {"Beneficiary Name": "", "Beneficiary Address": ""}
+            {
+                "Name": "", 
+                "Address": "",
+                "Phone": "",
+                "Relationship": "",
+                "SSN": "",
+                "DOB": ""
+            }
         ])
         edited_bens = st.data_editor(default_ben_df, num_rows="dynamic", use_container_width=True)
 
     # --- TAB 4: EMAIL SETTINGS ---
     with tab4:
-        st.subheader("Email Delivery Authentication")
-        st.info("Results will be sent from **shekerlianlaw@gmail.com** to **anu@barthattorneys.com**.")
-        gmail_password = st.text_input("Gmail App Password", type="password", help="Enter the 16-character Google App Password for shekerlianlaw@gmail.com")
+        st.subheader("Finalize & Submit")
+        st.info("When you click submit, the documents will be generated and automatically emailed from **shekerlianlaw@gmail.com** to **anu@barthattorneys.com**.")
 
-    # --- SUBMIT BUTTON ---
-    st.markdown("---")
-    submit_btn = st.form_submit_button("Generate Documents & Email Results", type="primary")
+        # --- SUBMIT BUTTON ---
+        st.markdown("---")
+        submit_btn = st.form_submit_button("Generate Documents & Email Results", type="primary")
 
 # --- PROCESSING LOGIC ---
 if submit_btn:
-    if not decedent_name or not gmail_password:
-        st.error("⚠️ Decedent Name and Gmail App Password are required.")
+    if not decedent_name:
+        st.error("⚠️ Decedent Name is required.")
+    elif GMAIL_APP_PASSWORD == "PUT_YOUR_16_CHAR_PASSWORD_HERE":
+        st.error("⚠️ Please update the GMAIL_APP_PASSWORD in the python code (around line 11) with your real app password.")
     else:
         with st.spinner("Generating documents and preparing email..."):
             
@@ -163,7 +176,7 @@ TA Automator Bot
                 
                 # Connect to Gmail SMTP server
                 with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-                    smtp.login("shekerlianlaw@gmail.com", gmail_password)
+                    smtp.login("shekerlianlaw@gmail.com", GMAIL_APP_PASSWORD)
                     smtp.send_message(msg)
                 
                 st.success("✅ Documents generated and successfully emailed to anu@barthattorneys.com!")
