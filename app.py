@@ -17,6 +17,16 @@ TEMPLATES_DIR = "templates"
 if not os.path.exists(TEMPLATES_DIR):
     os.makedirs(TEMPLATES_DIR)
 
+# Find all templates in either the 'templates' folder or the root directory
+template_files = []
+for directory in [TEMPLATES_DIR, "."]:
+    if os.path.exists(directory):
+        for filename in os.listdir(directory):
+            if filename.endswith(".docx") and not filename.startswith("~$"):
+                filepath = os.path.join(directory, filename)
+                if filepath not in template_files:
+                    template_files.append(filepath)
+
 st.set_page_config(page_title="Trust Admin Automator", layout="wide")
 
 st.title("Trust Admin Document Generator")
@@ -49,12 +59,12 @@ with st.form("ta_automation_form"):
         col4, col5, col6 = st.columns(3)
         with col4:
             trust_name = st.text_input("Full Trust Name", placeholder="e.g., The Doe Family Trust")
-            settlor_name = st.text_input("Settlor Name", placeholder="e.g., John H. Doe")
+            settlor_name = st.text_input("Settlor/Trustor Name(s) (exactly as written on the trust)", placeholder="e.g., John H. Doe")
         with col5:
             trust_date = st.text_input("Date of Trust", placeholder="e.g., October 5, 2015")
             will_date = st.text_input("Date of Will", placeholder="e.g., October 5, 2015")
         with col6:
-            attorney_name = st.text_input("Attorney Name", value="Harry Barth, Esq.")
+            attorney_name = st.text_input("Attorney Name")
             law_firm_name = st.text_input("Law Firm Name", value="BarthCalderon LLP")
 
     # --- TAB 2: TRUSTEE INFO ---
@@ -85,7 +95,6 @@ with st.form("ta_automation_form"):
     # --- TAB 4: EMAIL SETTINGS ---
     with tab4:
         st.subheader("Finalize & Submit")
-        st.info("When you click submit, the documents will be generated and automatically emailed from **shekerlianlaw@gmail.com** to **anu@barthattorneys.com**.")
 
         # --- SUBMIT BUTTON ---
         st.markdown("---")
@@ -126,24 +135,24 @@ if submit_btn:
             
             try:
                 with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-                    for filename in os.listdir(TEMPLATES_DIR):
-                        if filename.endswith(".docx") and not filename.startswith("~$"):
-                            docs_generated = True
-                            doc = DocxTemplate(os.path.join(TEMPLATES_DIR, filename))
-                            
-                            # Render the template with our context data
-                            doc.render(context)
-                            
-                            # Save to in-memory buffer
-                            doc_buffer = io.BytesIO()
-                            doc.save(doc_buffer)
-                            
-                            # Write to the zip file
-                            clean_name = decedent_name.replace(' ', '_')
-                            zip_file.writestr(f"{clean_name}_{filename}", doc_buffer.getvalue())
+                    for filepath in template_files:
+                        docs_generated = True
+                        doc = DocxTemplate(filepath)
+                        
+                        # Render the template with our context data
+                        doc.render(context)
+                        
+                        # Save to in-memory buffer
+                        doc_buffer = io.BytesIO()
+                        doc.save(doc_buffer)
+                        
+                        # Write to the zip file
+                        clean_name = decedent_name.replace(' ', '_')
+                        filename = os.path.basename(filepath)
+                        zip_file.writestr(f"{clean_name}_{filename}", doc_buffer.getvalue())
                 
                 if not docs_generated:
-                    st.error(f"❌ No .docx templates found in the '{TEMPLATES_DIR}' folder.")
+                    st.error("❌ No .docx templates found. Please ensure your .docx files are in the 'templates' folder or the main repository folder on GitHub.")
                     st.stop()
 
             except Exception as e:
@@ -179,6 +188,14 @@ TA Automator Bot
                     smtp.send_message(msg)
                 
                 st.success("✅ Documents generated and successfully emailed to anu@barthattorneys.com!")
+                
+                # Provide a download button for the generated ZIP file
+                st.download_button(
+                    label="⬇️ Download Documents (ZIP)",
+                    data=zip_buffer.getvalue(),
+                    file_name=f"{decedent_name.replace(' ', '_')}_TA_Documents.zip",
+                    mime="application/zip"
+                )
                 
             except smtplib.SMTPAuthenticationError:
                 st.error("❌ Email Failed: Authentication Error. Please ensure you are using a valid 16-character Google App Password, not your standard login password.")
