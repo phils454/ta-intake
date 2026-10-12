@@ -25,15 +25,14 @@ Fill out the details below to automatically populate the Trust Administration do
 When submitted, the system will generate a ZIP file of all documents and email them directly to **anu@barthattorneys.com**.
 """)
 
-# Setup Form Tabs for better organization
-tab1, tab2, tab3, tab4 = st.tabs([
-    "1. Decedent & Trust", 
-    "2. Trustee Info", 
-    "3. Beneficiaries",
-    "4. Email Delivery Settings"
-])
-
 with st.form("ta_automation_form"):
+    # Setup Form Tabs for better organization inside the form
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "1. Decedent & Trust", 
+        "2. Trustee Info", 
+        "3. Beneficiaries",
+        "4. Email Delivery Settings"
+    ])
     
     # --- TAB 1: DECEDENT & TRUST ---
     with tab1:
