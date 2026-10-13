@@ -162,29 +162,29 @@ with tab1:
     st.subheader("Settlor(s) / Trustor(s)")
     st.markdown("Add all Settlors/Trustors as they appear on the trust document.")
     st.session_state["settlors_data"] = st.data_editor(
-        st.session_state["settlors_data"], num_rows="dynamic", use_container_width=True
+        st.session_state["settlors_data"], num_rows="dynamic", use_container_width=True, key="settlors_editor"
     )
 
 # --- TAB 2: RELATIVES & EXES ---
 with tab2:
     st.subheader("Parents")
     st.session_state["parents_data"] = st.data_editor(
-        st.session_state["parents_data"], num_rows="dynamic", use_container_width=True
+        st.session_state["parents_data"], num_rows="dynamic", use_container_width=True, key="parents_editor"
     )
     
     st.subheader("Siblings")
     st.session_state["siblings_data"] = st.data_editor(
-        st.session_state["siblings_data"], num_rows="dynamic", use_container_width=True
+        st.session_state["siblings_data"], num_rows="dynamic", use_container_width=True, key="siblings_editor"
     )
     
     st.subheader("Children (or Grandchildren)")
     st.session_state["children_data"] = st.data_editor(
-        st.session_state["children_data"], num_rows="dynamic", use_container_width=True
+        st.session_state["children_data"], num_rows="dynamic", use_container_width=True, key="children_editor"
     )
     
     st.subheader("Previous Marriages (Ex-Spouses)")
     st.session_state["ex_spouses_data"] = st.data_editor(
-        st.session_state["ex_spouses_data"], num_rows="dynamic", use_container_width=True
+        st.session_state["ex_spouses_data"], num_rows="dynamic", use_container_width=True, key="ex_spouses_editor"
     )
 
 # --- TAB 3: TRUSTEE INFO ---
@@ -196,7 +196,8 @@ with tab3:
     edited_trustees = st.data_editor(
         st.session_state["trustees_data"], 
         num_rows="dynamic", 
-        use_container_width=True
+        use_container_width=True,
+        key="trustees_editor"
     )
     # Save edits back to session state so the download button catches them
     st.session_state["trustees_data"] = edited_trustees
@@ -210,7 +211,8 @@ with tab4:
     edited_bens = st.data_editor(
         st.session_state["beneficiaries_data"], 
         num_rows="dynamic", 
-        use_container_width=True
+        use_container_width=True,
+        key="bens_editor"
     )
     # Save edits back to session state so the download button catches them
     st.session_state["beneficiaries_data"] = edited_bens
@@ -219,38 +221,38 @@ with tab4:
 with tab5:
     st.subheader("Life Insurance")
     st.session_state["insurance_data"] = st.data_editor(
-        st.session_state["insurance_data"], num_rows="dynamic", use_container_width=True
+        st.session_state["insurance_data"], num_rows="dynamic", use_container_width=True, key="insurance_editor"
     )
     
     st.subheader("Investments (CD/Bond/Stock/Crypto/Mutual Fund/Retirement)")
     st.session_state["investments_data"] = st.data_editor(
-        st.session_state["investments_data"], num_rows="dynamic", use_container_width=True
+        st.session_state["investments_data"], num_rows="dynamic", use_container_width=True, key="investments_editor"
     )
     
     st.subheader("Business Ownership/Investments")
     st.session_state["business_data"] = st.data_editor(
-        st.session_state["business_data"], num_rows="dynamic", use_container_width=True
+        st.session_state["business_data"], num_rows="dynamic", use_container_width=True, key="business_editor"
     )
     
     st.subheader("Real Estate")
     st.session_state["real_estate_data"] = st.data_editor(
-        st.session_state["real_estate_data"], num_rows="dynamic", use_container_width=True
+        st.session_state["real_estate_data"], num_rows="dynamic", use_container_width=True, key="real_estate_editor"
     )
     
     st.subheader("Vehicles (Autos, Boats, Motors, Motorcycles, RVs)")
     st.session_state["vehicles_data"] = st.data_editor(
-        st.session_state["vehicles_data"], num_rows="dynamic", use_container_width=True
+        st.session_state["vehicles_data"], num_rows="dynamic", use_container_width=True, key="vehicles_editor"
     )
     
     st.subheader("Debts (Including Utilities)")
     st.session_state["debts_data"] = st.data_editor(
-        st.session_state["debts_data"], num_rows="dynamic", use_container_width=True
+        st.session_state["debts_data"], num_rows="dynamic", use_container_width=True, key="debts_editor"
     )
     
     st.subheader("Furniture, Collectables, Personal Items")
     st.markdown("List any additional items that have a substantial or sentimental value.")
     st.session_state["personal_items_data"] = st.data_editor(
-        st.session_state["personal_items_data"], num_rows="dynamic", use_container_width=True
+        st.session_state["personal_items_data"], num_rows="dynamic", use_container_width=True, key="personal_items_editor"
     )
 
 # --- TAB 6: EMAIL SETTINGS & SUBMIT ---
