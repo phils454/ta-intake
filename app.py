@@ -9,7 +9,7 @@ from email.message import EmailMessage
 import json
 
 # --- HIDDEN FIRM CREDENTIALS ---
-GMAIL_APP_PASSWORD = "vanw lgrb uojp nbrm"
+GMAIL_APP_PASSWORD = "vanwlgrbuojpnbrm"
 
 # Define the templates folder location
 TEMPLATES_DIR = "templates"
@@ -34,7 +34,9 @@ default_keys = {
     "decedent_name": "", "date_of_death": "", "ssn": "",
     "trust_name": "", "settlor_name": "", "trust_date": "", "will_date": "",
     "attorney_name": "", "law_firm_name": "BarthCalderon LLP",
-    "trustee_name": "", "trustee_address": "", "trustee_phone": "",
+    "trustees_data": [
+        {"Name": "", "Address": "", "Phone": ""}
+    ],
     "beneficiaries_data": [
         {"Name": "", "Address": "", "Phone": "", "Relationship": "", "SSN": "", "DOB": ""}
     ]
@@ -113,10 +115,17 @@ with tab1:
 
 # --- TAB 2: TRUSTEE INFO ---
 with tab2:
-    st.subheader("Currently Acting Trustee")
-    st.text_input("Trustee Full Name", key="trustee_name")
-    st.text_input("Trustee Address (One Line)", placeholder="123 Main Street, Los Angeles, CA 90001", key="trustee_address")
-    st.text_input("Trustee Phone", placeholder="(555) 123-4567", key="trustee_phone")
+    st.subheader("Currently Acting Trustee(s)")
+    st.markdown("Enter the trustee(s) below. If there are multiple co-trustees, click the bottom of the table to add a row for each.")
+    
+    # Interactive table linked to session state
+    edited_trustees = st.data_editor(
+        st.session_state["trustees_data"], 
+        num_rows="dynamic", 
+        use_container_width=True
+    )
+    # Save edits back to session state so the download button catches them
+    st.session_state["trustees_data"] = edited_trustees
 
 # --- TAB 3: BENEFICIARIES ---
 with tab3:
@@ -147,8 +156,6 @@ if submit_btn:
     
     if not decedent_val:
         st.error("⚠️ Decedent Name is required.")
-    elif GMAIL_APP_PASSWORD == "PUT_YOUR_16_CHAR_PASSWORD_HERE":
-        st.error("⚠️ Please update the GMAIL_APP_PASSWORD in the python code (around line 12) with your real app password.")
     else:
         with st.spinner("Generating documents and preparing email..."):
             
@@ -161,9 +168,7 @@ if submit_btn:
                 "trust_date": st.session_state["trust_date"],
                 "settlor_name": st.session_state["settlor_name"],
                 "will_date": st.session_state["will_date"],
-                "trustee_name": st.session_state["trustee_name"],
-                "trustee_address": st.session_state["trustee_address"],
-                "trustee_phone": st.session_state["trustee_phone"],
+                "trustees": st.session_state["trustees_data"],
                 "attorney_name": st.session_state["attorney_name"],
                 "law_firm_name": st.session_state["law_firm_name"],
                 "beneficiaries": st.session_state["beneficiaries_data"]
@@ -222,6 +227,6 @@ if submit_btn:
                 st.success("✅ Documents generated and successfully emailed (with JSON backup) to anu@barthattorneys.com!")
                 
             except smtplib.SMTPAuthenticationError:
-                st.error("❌ Email Failed: Authentication Error. Please ensure you are using a valid 16-character Google App Password.")
+                st.error("❌ Email Failed: Authentication Error. Please ensure your Gmail App Password is correct.")
             except Exception as e:
                 st.error(f"❌ Email Failed: An unexpected error occurred: {e}")
