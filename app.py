@@ -195,25 +195,31 @@ if submit_btn:
                 st.error(f"❌ Error generating documents: {e}")
                 st.stop()
 
-            # 2. Email the ZIP file
+            # 2. Email the ZIP file and the JSON Data
             try:
                 msg = EmailMessage()
                 msg['Subject'] = f"Trust Administration Documents: Estate of {decedent_val}"
                 msg['From'] = "shekerlianlaw@gmail.com"
                 msg['To'] = "anu@barthattorneys.com"
                 
-                body_text = f"""Anu,\n\nThe Trust Administration documents for the Estate of {decedent_val} have been automatically generated.\n\nPlease find the finalized documents attached in the ZIP file.\n\nBest,\nTA Automator Bot"""
+                body_text = f"""Anu,\n\nThe Trust Administration documents for the Estate of {decedent_val} have been automatically generated.\n\nPlease find two files attached:\n1. A ZIP file containing the finalized Word documents.\n2. A JSON data file containing all of the client's form inputs.\n\nIf the client made a mistake, simply download the attached JSON file, upload it into the 'Load Saved Client Data' box in the sidebar of the app, correct the mistake, and click Generate.\n\nBest,\nTA Automator Bot"""
                 msg.set_content(body_text)
                 
+                # Attach the ZIP
                 zip_name = f"{decedent_val.replace(' ', '_')}_TA_Documents.zip"
                 msg.add_attachment(zip_buffer.getvalue(), maintype='application', subtype='zip', filename=zip_name)
+                
+                # Attach the JSON
+                email_data = {k: st.session_state[k] for k in default_keys.keys() if k in st.session_state}
+                email_json_data = json.dumps(email_data, indent=4)
+                json_name = f"{decedent_val.replace(' ', '_')}_Data.json"
+                msg.add_attachment(email_json_data.encode('utf-8'), maintype='application', subtype='json', filename=json_name)
                 
                 with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
                     smtp.login("shekerlianlaw@gmail.com", GMAIL_APP_PASSWORD)
                     smtp.send_message(msg)
                 
-                st.success("✅ Documents generated and successfully emailed to our office")
-
+                st.success("✅ Documents generated and successfully emailed (with JSON backup) to anu@barthattorneys.com!")
                 
             except smtplib.SMTPAuthenticationError:
                 st.error("❌ Email Failed: Authentication Error. Please ensure you are using a valid 16-character Google App Password.")
