@@ -167,22 +167,22 @@ with tab1:
 
 # --- TAB 2: RELATIVES & EXES ---
 with tab2:
-    st.subheader("Parents")
+    st.subheader("Living Parents of Decedent")
     st.session_state["parents_data"] = st.data_editor(
         st.session_state["parents_data"], num_rows="dynamic", use_container_width=True, key="parents_editor"
     )
     
-    st.subheader("Siblings")
+    st.subheader("Living Siblings of Decedent")
     st.session_state["siblings_data"] = st.data_editor(
         st.session_state["siblings_data"], num_rows="dynamic", use_container_width=True, key="siblings_editor"
     )
     
-    st.subheader("Children (or Grandchildren)")
+    st.subheader("Living Children of Decedent (or Grandchildren if no Children)")
     st.session_state["children_data"] = st.data_editor(
         st.session_state["children_data"], num_rows="dynamic", use_container_width=True, key="children_editor"
     )
     
-    st.subheader("Previous Marriages (Ex-Spouses)")
+    st.subheader("Previous Marriages (Ex-Spouses) of Decedent")
     st.session_state["ex_spouses_data"] = st.data_editor(
         st.session_state["ex_spouses_data"], num_rows="dynamic", use_container_width=True, key="ex_spouses_editor"
     )
