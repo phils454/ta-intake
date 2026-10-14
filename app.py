@@ -250,7 +250,9 @@ with tab5:
     )
     
     st.subheader("Furniture, Collectables, Personal Items")
-    st.markdown("List any additional items that have a substantial or sentimental value.")
+    st.markdown("Please list any additional items that have a substantial value. Substantial value is different in each estate and should be listed only if they will make a difference in the overall value of the estate. For example, if an item is worth $1000 and the entire estate is worth $1 million, then you would not need to list the item; however, if the entire estate is worth $100,000, then you should list the item.
+Additionally, please list any items of special sentimental value. Some examples of the types of items to list here are tools, yard equipment, furniture, electronics, rare coins, art, guns, family dolls, etc.
+")
     st.session_state["personal_items_data"] = st.data_editor(
         st.session_state["personal_items_data"], num_rows="dynamic", use_container_width=True, key="personal_items_editor"
     )
