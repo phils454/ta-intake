@@ -34,7 +34,7 @@ default_keys = {
     "decedent_name": "", "date_of_death": "", "ssn": "",
     "spouse_name": "", "spouse_dob": "", "spouse_dod": "",
     "trust_name": "", "trust_date": "", "will_date": "",
-    "attorney_name": "", "law_firm_name": "BarthCalderon LLP",
+    "attorney_name_at_BarthCalderon_who_you_are_working_with": "", "law_firm_name": "BarthCalderon LLP",
     "settlors_data": [
         {"Name": ""}
     ],
