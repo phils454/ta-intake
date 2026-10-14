@@ -34,7 +34,7 @@ default_keys = {
     "decedent_name": "", "date_of_death": "", "ssn": "",
     "spouse_name": "", "spouse_dob": "", "spouse_dod": "",
     "trust_name": "", "trust_date": "", "will_date": "",
-    "attorney_name_at_BarthCalderon_who_you_are_working_with": "", "law_firm_name": "BarthCalderon LLP",
+    "attorney_name": "", "law_firm_name": "BarthCalderon LLP",
     "settlors_data": [
         {"Name": ""}
     ],
@@ -156,7 +156,7 @@ with tab1:
         st.text_input("Date of Trust", placeholder="e.g., October 5, 2015", key="trust_date")
     with col5:
         st.text_input("Date of Will", placeholder="e.g., October 5, 2015", key="will_date")
-        st.text_input("Attorney Name", key="attorney_name")
+        st.text_input("Attorney Name who You are Working with at BarthCalderon", key="attorney_name")
         st.text_input("Law Firm Name", key="law_firm_name")
 
     st.subheader("Settlor(s) / Trustor(s)")
