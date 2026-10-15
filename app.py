@@ -117,7 +117,7 @@ with st.sidebar:
     )
 
 # --- MAIN CONTENT ---
-st.title("Trust Admin Document Generator")
+st.title("BarthCalderon Trust Admin Questionnaire")
 st.markdown("Fill out the details below. <mark style='background-color: yellow; font-weight: bold; padding: 2px 5px;'>PROGRESS IS NOT AUTOMATICALLY SAVED. YOU MUST SAVE IT VIA THE LEFT SIDEBAR OR ALL YOUR PROGRESS WILL BE LOST</mark>", unsafe_allow_html=True)
 
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
