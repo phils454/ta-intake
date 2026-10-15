@@ -9,7 +9,7 @@ from email.message import EmailMessage
 import json
 
 # --- HIDDEN FIRM CREDENTIALS ---
-GMAIL_APP_PASSWORD = "vanwlgrbuojpnbrm"
+GMAIL_APP_PASSWORD = st.secrets["email_password"]
 
 # Define the templates folder location
 TEMPLATES_DIR = "templates"
