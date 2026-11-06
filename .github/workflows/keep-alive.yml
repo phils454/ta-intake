@@ -1,0 +1,42 @@
+name: Keep Streamlit Apps Awake
+
+on:
+  schedule:
+    - cron: '0 */12 * * *' # Runs every 12 hours automatically
+  workflow_dispatch: # Allows you to run it manually if needed
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Playwright (Hidden Browser)
+        run: |
+          npm init -y
+          npm install playwright
+          npx playwright install chromium
+
+      - name: Visit Apps
+        run: |
+          node -e "
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage();
+            
+            console.log('Visiting TA App...');
+            await page.goto('https://phil-shekerlians-ta-questionnaire.streamlit.app');
+            await page.waitForTimeout(10000); // Wait 10 seconds to ensure it wakes up
+            
+            console.log('Visiting EP App...');
+            await page.goto('https://phil-shekerlians-ep-questionnaire.streamlit.app');
+            await page.waitForTimeout(10000); // Wait 10 seconds to ensure it wakes up
+            
+            await browser.close();
+            console.log('Done!');
+          })();
+          "
